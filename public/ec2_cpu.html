@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Elastic Compute Cloud - CPU Utilization</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+    <script src="https://www.chartjs.org/samples/latest/utils.js"></script>
+</head>
+
+<body>
+    <div width="400" height="200">
+        <canvas id="chart"></canvas>
+    </div>
+    <script>
+
+        async function readJSONfile() {
+            const response = await fetch('ec2_cpu_utilization.json')
+            const data = await response.json()
+            return data
+        }
+
+        async function sortChartData(data) {
+            const ec2Instance = data.ec2Instance
+            const sortedChartData = data.metricsDataArray.sort((a, b) => new Date(b.x).getTime() - new Date(a.x).getTime())
+            return {
+                ec2Instance,
+                sortedChartData
+            }
+        }
+        async function drawChart(data) {
+            const ctx = document.getElementById("chart").getContext("2d");
+            const color = Chart.helpers.color
+            const myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: `${data.ec2Instance}  CPU Utilization (Average)`,
+                        data: data.sortedChartData,
+                        backgroundColor: color(window.chartColors.blue).alpha(0.5).rgbString(),
+                        borderColor: window.chartColors.blue,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        xAxes: [{
+                            type: 'time',
+                            distribution: 'series'
+                        }],
+                        yAxes: [{
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'CPU Utilization (%)'
+                            },
+                            ticks: {
+                                min: 0,
+                                max: 100
+                            }
+                        }]
+                    }
+                }
+            })
+        }
+        readJSONfile()
+            .then((data) => {
+                sortChartData(data)
+                    .then((data) => {
+                        drawChart(data)
+                    })
+            })
+    </script>
+</body>
+
+</html>

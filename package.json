@@ -1,0 +1,10 @@
+{
+  "name": "rdsmetricanalyzer",
+  "version": "1.0.0",
+  "description": "Gathers CPU Utilization, ReadIOPS & WriteIOPS metrics for an AWS RDS instance and graphs them on a chart.",
+  "main": "index.js",
+  "scripts":,
+  "keywords": [],
+  "author": "Paul Sczurek",
+  "license": "MIT"
+}
